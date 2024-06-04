@@ -1,22 +1,47 @@
-importar { Terminal } desde '@es-js/terminal'
+import { Terminal } from "@es-js/terminal"
+import { obtenerJson } from "https://desarrollo-aplicaciones.vercel.app/2024/code/obtener-json.js"
+import { validarSecreto } from "https://desarrollo-aplicaciones.vercel.app/2024/code/validar-secreto.js"
 
-asincrono funcion inicio() {
-	Terminal.limpiar()
+async function inicio() {
+  Terminal.escribir("Hola! Ingresa la palabra secreta:")
 
-	Terminal.escribir('Ingresa un valor:')
+  var secreto = await Terminal.leer()
 
-	const resultado = esperar Terminal.leer()
+  var dni = "44137148" 
 
-	Terminal.escribir({
-		Resultado: resultado,
-		Tipo: tipoDe resultado,
-	})
+  if (await validarSecreto(dni, secreto)) {
+    await mostrarCotizacion()
+  } else {
+    Terminal.escribir("Palabra secreta inválida")
+  }
 
-	Terminal.escribir('Presiona ENTER para volver a iniciar')
+  Terminal.escribir("Presiona ENTER para volver a ingresar")
 
-	esperar Terminal.leerEnter()
+  await Terminal.leerEnter()
 
-	esperar inicio()
+  Terminal.limpiar()
+
+  inicio()
+}
+
+async function mostrarCotizacion() {
+  const dolarBlue = await obtenerJson('https://dolarapi.com/v1/dolares/blue')
+  let dolar_venta = dolarBlue.venta;
+  let dolar_compra = dolarBlue.compra;
+  let dolar_promedio = (dolar_venta + dolar_compra) / 2;
+  let dolar_fecha = dolarBlue.fechaActualizacion;
+  let dolar_fecha_1 = new Date(dolar_fecha)
+
+
+  let dolar_venta_formato = dolar_venta.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+  let dolar_compra_formato = dolar_compra.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+  let dolar_fecha_formato = dolar_fecha_1.toLocaleString("es-AR", { hour12:false})
+  let dolar_promedio_formato = dolar_promedio.toLocaleString('en-US', {style: 'currency', currency: 'USD'});
+
+  Terminal.escribir("El precio de venta del dolar Blue es de: " + dolar_venta_formato);
+  Terminal.escribir("El precio de compra del dolar Blue es de: " + dolar_compra_formato);
+  Terminal.escribir("El promedio del dolar Blue es: " + dolar_promedio_formato);
+  Terminal.escribir("La ultima actualizacion fue el: " + dolar_fecha_formato);
 }
 
 inicio()
